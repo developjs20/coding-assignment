@@ -8,7 +8,7 @@ import Header from './components/Header'
 import Movies from './components/Movies'
 import Starred from './components/Starred'
 import WatchLater from './components/WatchLater'
-import YouTubePlayer from './components/YoutubePlayer'
+import MovieModal from './components/MovieModal'
 import './app.scss'
 
 const App = () => {
@@ -75,13 +75,7 @@ const App = () => {
       <Header searchMovies={searchMovies} searchParams={searchParams} setSearchParams={setSearchParams} />
 
       <div className="container">
-        {videoKey ? (
-          <YouTubePlayer
-            videoKey={videoKey}
-          />
-        ) : (
-          isOpen ? (<div style={{padding: "30px"}}><h6>no trailer available. Try another movie</h6></div>) : null
-        )}
+        <MovieModal isOpen={isOpen} onRequestClose={closeModal} videoKey={videoKey} />
 
         <Routes>
           <Route path="/" element={<Movies movies={movies} viewTrailer={viewTrailer} closeCard={closeCard} />} />
