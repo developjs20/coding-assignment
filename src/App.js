@@ -29,7 +29,6 @@ const App = () => {
   const closeCard = () => {}
 
   useEffect(() => {
-      console.log('useEffect');
       getMovies(searchQuery)
   }, [page])
 
