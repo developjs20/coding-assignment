@@ -1,7 +1,12 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithProviders } from './utils'
+import { mockIntersectionObserver } from './intersectionObserver.mock';
 import App from '../App'
+
+beforeAll(() => {
+    window.IntersectionObserver = mockIntersectionObserver;
+});
 
 it('Watch Later movies page', async () => {
     renderWithProviders(<App />)
@@ -19,6 +24,6 @@ it('Watch Later movies page', async () => {
     // const watchLaterink = screen.getByTestId('watch-later-div')
     // await waitFor(() => {
     //     expect(watchLaterink).toBeInTheDocument()
-    // })    
+    // })
     // await userEvent.click(watchLaterink)
 })
