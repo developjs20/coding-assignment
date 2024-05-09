@@ -30,6 +30,7 @@ const App = () => {
 
   useEffect(() => {
       getMovies(searchQuery)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
 
   const getMovies = (searchQuery = '') => {
