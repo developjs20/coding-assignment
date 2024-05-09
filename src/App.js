@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import {useEffect, useState} from 'react'
 import { Routes, Route, createSearchParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import 'reactjs-popup/dist/index.css'
 import { fetchMovies } from './data/moviesSlice'
-import {ENDPOINT_SEARCH, ENDPOINT_DISCOVER, getEndpointMovie} from './constants'
+import {getSearchEndpoint, getDiscoverEndpoint, getMovieEndpoint} from './constants'
+import { useInfiniteScroll } from './hooks/useInfiniteScroll'
 import Header from './components/Header'
 import Movies from './components/Movies'
 import Starred from './components/Starred'
@@ -11,8 +12,8 @@ import WatchLater from './components/WatchLater'
 import MovieModal from './components/MovieModal'
 import './app.scss'
 
-const App = () => {
 
+const App = () => {
   const state = useSelector((state) => state)
   const { movies } = state
   const dispatch = useDispatch()
@@ -21,34 +22,33 @@ const App = () => {
   const [videoKey, setVideoKey] = useState()
   const [isOpen, setOpen] = useState(false)
   const navigate = useNavigate()
+  const {loadMoreRef, page, setPage} = useInfiniteScroll();
 
   const closeModal = () => setOpen(false)
 
-  const closeCard = () => {
+  const closeCard = () => {}
 
-  }
+  useEffect(() => {
+      console.log('useEffect');
+      getMovies(searchQuery)
+  }, [page])
 
-  const getSearchResults = (query) => {
-    if (query !== '') {
-      dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=${query}`))
-      setSearchParams(createSearchParams({ search: query }))
+  const getMovies = (searchQuery = '') => {
+    if (searchQuery) {
+        dispatch(fetchMovies(getSearchEndpoint(page, searchQuery)))
+        setSearchParams(createSearchParams({ search: searchQuery }))
     } else {
-      dispatch(fetchMovies(ENDPOINT_DISCOVER))
-      setSearchParams()
+        dispatch(fetchMovies(getDiscoverEndpoint(page)))
+        setSearchParams()
     }
-  }
+  };
 
   const searchMovies = (query) => {
-    navigate('/')
-    getSearchResults(query)
-  }
-
-  const getMovies = () => {
-    if (searchQuery) {
-        dispatch(fetchMovies(`${ENDPOINT_SEARCH}&query=${searchQuery}`))
-    } else {
-        dispatch(fetchMovies(ENDPOINT_DISCOVER))
-    }
+    navigate('/');
+    setPage(1);
+    window.scrollTo(0,0);
+    if (!query) return;
+    getMovies(query);
   }
 
   const viewTrailer = async (movie) => {
@@ -58,17 +58,15 @@ const App = () => {
 
   const getMovie = async (id) => {
     setVideoKey(null)
-    const videoData = await fetch(getEndpointMovie(id))
-      .then((response) => response.json())
+    const videoData = await fetch(getMovieEndpoint(id))
+      .then((response) => {
+        return response.json();
+      })
     if (videoData.videos && videoData.videos.results.length) {
       const trailer = videoData.videos.results.find(vid => vid.type === 'Trailer')
       setVideoKey(trailer ? trailer.key : videoData.videos.results[0].key)
     }
   }
-
-  useEffect(() => {
-    getMovies()
-  }, [])
 
   return (
     <div className="App">
@@ -78,7 +76,7 @@ const App = () => {
         <MovieModal isOpen={isOpen} onRequestClose={closeModal} videoKey={videoKey} />
 
         <Routes>
-          <Route path="/" element={<Movies movies={movies} viewTrailer={viewTrailer} closeCard={closeCard} />} />
+          <Route path="/" element={<Movies movies={movies} viewTrailer={viewTrailer} closeCard={closeCard} loadMoreRef={loadMoreRef}/>} />
           <Route path="/starred" element={<Starred viewTrailer={viewTrailer} />} />
           <Route path="/watch-later" element={<WatchLater viewTrailer={viewTrailer} />} />
           <Route path="*" element={<h1 className="not-found">Page Not Found</h1>} />

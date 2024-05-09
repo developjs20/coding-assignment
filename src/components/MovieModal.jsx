@@ -19,8 +19,8 @@ const MovieModal = ({ videoKey, isOpen, onRequestClose }) => {
         },
     };
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={customStyles}>
-            <div class="modal-content">
+        <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={customStyles} ariaHideApp={false}>
+            <div className="modal-content">
                 <button className="close-button" onClick={onRequestClose}><CloseIcon /></button>
                 {videoKey ? (
                     <YouTubePlayer
