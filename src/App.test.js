@@ -1,7 +1,13 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithProviders } from "./test/utils"
+import { mockIntersectionObserver } from './test/intersectionObserver.mock';
 import App from './App'
+
+beforeAll(() => {
+  window.IntersectionObserver = mockIntersectionObserver;
+  window.scrollTo = jest.fn();
+});
 
 it('renders watch later link', () => {
   renderWithProviders(<App />)
@@ -37,5 +43,5 @@ it('renders starred component', async() => {
   expect(screen.getByText(/There are no starred movies/i)).toBeInTheDocument()
   await waitFor(() => {
     expect(screen.getByTestId('starred')).toBeInTheDocument()
-  })  
+  })
 })
